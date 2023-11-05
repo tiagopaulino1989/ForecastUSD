@@ -23,61 +23,53 @@ def get_dollar_data(start_date, end_date):
     df = yf.download('USDBRL=X', start=start_date, end=end_date)
     return df
 
-# Obter dados do Yahoo Finance para os últimos 120 dias
+# Obter dados do Yahoo Finance 
 end_date = datetime.today()
-end_date_forecast = start_date + timedelta(days=forecast_days)
 dollar_data = get_dollar_data(start_date, end_date)
 
 # Verificar a estacionariedade da série temporal
 result = adfuller(dollar_data['Close'])
 
-if result[1] <= 0.05:
-    st.warning("A série é estacionária, com um p-valor <= 0.05")
-else:
-    st.success("A série não é estacionária. Aplicando diferenciação.")
+# Aplicar a diferenciação para tornar a série estacionária
+dollar_data_diff = dollar_data['Close'].diff().dropna()
+result_diff = adfuller(dollar_data_diff)
 
-    # Aplicar a diferenciação para tornar a série estacionária
-    dollar_data_diff = dollar_data['Close'].diff().dropna()
-    result_diff = adfuller(dollar_data_diff)
+# Treinar o modelo ARIMA
+model = ARIMA(dollar_data['Close'], order=(p, d, q))
+model_fit = model.fit()
 
-    # Treinar o modelo ARIMA
-    model = ARIMA(dollar_data['Close'], order=(p, d, q))
-    model_fit = model.fit()
-
-    # Fazer a previsão para os próximos 45 dias
-    forecast_index = pd.date_range(start=dollar_data.index[-1] + pd.Timedelta(days=1), periods=forecast_days, freq='D')
-    forecast = model_fit.forecast(steps=forecast_days)
-
-    
-    # Criar um DataFrame para o gráfico Altair
-    df = pd.DataFrame({'Data': list(dollar_data['Close'].index) + list(forecast_index),
-                       'Valor': list(dollar_data['Close']) + list(forecast),
-                       'Tipo': ['Histórico'] * len(dollar_data['Close']) + ['Previsão'] * len(forecast)})
-
-    min_value = df['Valor'].min() - 0.05
-    max_value = df['Valor'].max() + 0.05
+# Fazer a previsão para os próximos 45 dias
+forecast_index = pd.date_range(start=dollar_data.index[-1] + pd.Timedelta(days=1), periods=forecast_days, freq='D')
+forecast = model_fit.forecast(steps=forecast_days)
 
 
-    # Criar o gráfico Altair
-    chart = alt.Chart(df).mark_line().encode(
-        x='Data:T',
-        y=alt.Y('Valor:Q', scale=alt.Scale(domain=[min_value, max_value])),
-        color='Tipo:N'
-    ).properties(
-        width=1100,
-        height=400
-    )
+# Criar um DataFrame para o gráfico Altair
+df = pd.DataFrame({'Data': list(dollar_data['Close'].index) + list(forecast_index),
+                    'Valor': list(dollar_data['Close']) + list(forecast),
+                    'Tipo': ['Histórico'] * len(dollar_data['Close']) + ['Previsão'] * len(forecast)})
+
+min_value = df['Valor'].min() - 0.02
+max_value = df['Valor'].max() + 0.02
 
 
-    st.altair_chart(chart)
+# Criar o gráfico Altair
+chart = alt.Chart(df).mark_line().encode(
+    x='Data:T',
+    y=alt.Y('Valor:Q', scale=alt.Scale(domain=[min_value, max_value])),
+    color='Tipo:N'
+).properties(
+    width=1100,
+    height=350
+)
 
-    st.write("Teste ADF após diferenciação:")
-    st.write(f"Statistic: {result_diff[0]}")
-    st.write(f"P-value: {result_diff[1]}")
-    st.write(f"Critical Values: {result_diff[4]}")
+st.altair_chart(chart)
 
 
+st.divider()
+st.write("Teste ADF após diferenciação:")
+st.write(f"Statistic: {result_diff[0]}")
+st.write(f"P-value: {result_diff[1]}")
+st.write(f"Critical Values: {result_diff[4]}")
 
-
-
-st.write("Fonte dos dados: Yahoo Finance")
+st.divider()
+st.write("Criado por Tiago Paulino | https://www.linkedin.com/in/tiago-paulino-ds | Dados: Yahoo Finance")
