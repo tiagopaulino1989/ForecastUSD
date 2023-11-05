@@ -8,6 +8,20 @@ from statsmodels.tsa.stattools import adfuller
 
 st.set_page_config(layout="wide")
 
+st.markdown(
+    """
+    <style>
+    .st-ewNlD {
+        background: var(--slider-fill-color);
+    }
+    .stSlider-9eymE {
+        background: var(--slider-handle-color);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("Forecast USD time series")
 
 # Sidebar 
@@ -50,7 +64,6 @@ df = pd.DataFrame({'Data': list(dollar_data['Close'].index) + list(forecast_inde
 
 min_value = df['Valor'].min() - 0.02
 max_value = df['Valor'].max() + 0.02
-
 
 # Criar o gráfico Altair
 chart = alt.Chart(df).mark_line().encode(
