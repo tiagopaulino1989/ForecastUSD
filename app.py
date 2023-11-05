@@ -25,7 +25,7 @@ st.markdown(
 st.title("Forecast USD time series")
 
 # Sidebar 
-start_date = st.sidebar.date_input("Set initial data: ", datetime.today() - timedelta(90) )
+start_date = st.sidebar.date_input("Set initial data: ", datetime.today() - timedelta(15) )
 forecast_days = st.sidebar.slider("Forecast Days (1-60)", min_value=1, max_value=30, value=7)
 
 st.sidebar.header("Configuração do Modelo ARIMA")
