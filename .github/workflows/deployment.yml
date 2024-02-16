@@ -24,4 +24,4 @@ jobs:
 
       # Executa o novo contêiner Docker
       - name: Run Docker container
-        run: docker run -d -p 80:80 --name forecastusd forecastusd:latest
+        run: docker run -d -p 80:80 --name forecastusd forecastusd:latest 
