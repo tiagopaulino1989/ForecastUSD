@@ -10,13 +10,13 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # Derruba o contêiner Docker em execução
-      - name: Stop running container
-        run: |
-          CONTAINER_ID=$(docker ps -q --filter "name=forecastusd")
-          if [ ! -z "$CONTAINER_ID" ]; then
-            docker stop $CONTAINER_ID
-          fi
+      # # Derruba o contêiner Docker em execução
+      # - name: Stop running container
+      #   run: |
+      #     CONTAINER_ID=$(docker ps -q --filter "name=forecastusd")
+      #     if [ ! -z "$CONTAINER_ID" ]; then
+      #       docker stop $CONTAINER_ID
+      #     fi
 
       # Constrói a nova imagem Docker
       - name: Build Docker image
